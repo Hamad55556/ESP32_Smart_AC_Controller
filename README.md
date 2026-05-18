@@ -105,5 +105,4 @@ In Blynk, create three button widgets set to **Push** mode:
 
 ---
 
-**Hamad Al Saleem**  
-[LinkedIn](https://www.linkedin.com/in/Hamad-Al-saleem) · [h.alsaleem00@gmail.com](mailto:h.alsaleem00@gmail.com)
+
