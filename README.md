@@ -1,9 +1,12 @@
 # ESP32 Smart AC Controller
 
-I got tired of getting up to turn off my AC, so I made it smart.
+My room AC is a basic “dumb” unit with no WiFi or smart features, which meant I had to use the remote every single time I wanted to turn it on, off, or change the temperature. Even though my phone has an IR blaster, its range was terrible, so I still had to physically get up and point it at the AC.
 
-The AC in my room is a basic dumb unit with no WiFi or app support. Instead of buying a new one, I used an ESP32 to clone the IR remote signals and hooked it up to Blynk so I can control it from my phone. Now I can turn it on/off and set the temperature without leaving my bed.
+Since I already had an unused ESP32, some IR components, and a few spare boards lying around, I decided to turn the AC into a smart device instead of replacing it entirely.
 
+The ESP32 clones the exact IR signals from the original remote and connects to the internet through Blynk, letting me control the AC directly from my phone. Now I can change the temperature, turn it on or off remotely, or even start cooling my room before I get home from work so the room is already cold when I arrive.
+
+What started as a small convenience project ended up becoming a pretty interesting exercise in reverse engineering IR protocols, signal cleanup, and embedded systems debugging.
 ![Demo](docs/demo.gif)
 
 ---
@@ -16,7 +19,7 @@ The ESP32 connects to WiFi and listens for commands from the Blynk app. When I t
 Blynk App → Blynk Cloud → ESP32 → IR LED → AC unit
 ```
 
-Three buttons in the app:
+Three buttons currently in the app:
 - **OFF** — turns the AC off
 - **20°C** — turns it on at 20°C
 - **24°C** — turns it on at 24°C
@@ -91,15 +94,13 @@ In Blynk, create three button widgets set to **Push** mode:
 
 ## Things I ran into
 
-- `rawDataPtr` doesn't exist in IRremote 4.x — use `decodedIRData.rawlen` directly
-- Default IRremote buffer is too small for AC signals, set `RAW_BUFFER_LENGTH 400`
 - Single captures are too noisy to use directly — capture the same signal multiple times and average the stable timings
 
 ---
 
-## What's next
+## What's next if i have time
 
-- Design a PCB and print an enclosure so it doesn't live on a breadboard forever
+- Design a PCB and print an enclosure so it doesn't live on a breadboard or perfboard forever
 - Add more temperature presets
 - Blynk scheduled automations
 
