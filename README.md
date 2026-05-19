@@ -54,7 +54,7 @@ ESP32 GPIO pins can only push around 12mA, which isn't nearly enough to blast a 
 - IR LED 940nm + 2N2222 transistor + resistors — for sending
 - Powered over USB through my pc for now but planning on putting batteries when i have free time 
 
-
+![Project Setup](circuit_diagram.png)
 
 ---
 
