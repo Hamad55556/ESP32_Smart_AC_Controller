@@ -8,7 +8,7 @@ The ESP32 clones the exact IR signals from the original remote and connects to t
 
 What started as a small convenience project ended up becoming a pretty interesting exercise in reverse engineering IR protocols, signal cleanup, and embedded systems debugging.
 
-![circuit diagram](Setup.jpg)
+![setup and bad picture it works lol](Setup.jpg)
 
 ---
 
