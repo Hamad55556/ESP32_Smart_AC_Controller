@@ -29,20 +29,30 @@ Three buttons currently in the app:
 
 ## IR signal reverse engineering
 
-First thing I tried was finding a library or a signal database that already had my AC unit in it, spent a while on that and nothing worked. So I gave up and just decided to copy the raw signal directly from the remote and replay it exactly as-is, wired up an IR receiver to the ESP32, pointed the remote at it and started capturing.
+The first thing I tried was finding a library or a signal database that already had my AC unit in it. I spent a while looking, but nothing worked. So, I decided to just copy the raw signal directly from the remote and replay it exactly as-is. I wired an IR receiver to the ESP32, pointed the remote at it, and started capturing.
 
-The problem was noise, every capture looked slightly different and when I replayed it the AC just ignored it. The signal is 104 bits long and encodes the full AC state in one go, temperature, mode, fan speed, everything, so even a few bad bits and the AC rejects the whole thing. Manually comparing captures wasn't really an option so I just captured the same button press a bunch of times and had an AI read through all of them and pull out the common values. Whatever was consistent across all captures was the real signal and the rest was just noise, so from that I built a Frankenstein signal from those stable numbers and it worked first try. Did the same thing for OFF, 24°C, and 20°C.
 
-For sending the signal I used a 2N2222 NPN transistor to drive the IR LED at a carrier frequency of 38kHz, GPIO pins on the ESP32 can only push around 12mA which isn't nearly enough to reach across a room, the transistor bumps that up to the ~100mA the LED actually needs. After that it was just the Blynk side, created the virtual pins, connected them to the ESP32, set up the buttons in the app and that was it.
+The immediate problem was electrical noise. Every capture looked slightly different, and when I replayed the signal, the AC just ignored it. The payload is 104 bits long and encodes the full AC state—temperature, mode, fan speed, everything—in a single burst. If even a few bits are distorted by noise, the unit rejects the whole command.
 
----
+I definitely didn't want to sit there manually cross-referencing massive arrays of numbers, so I took a different approach. What if I just captured the exact same button press a dozen times and compared them? I recorded multiple samples and had an AI filter through them to pull out the common values. Whatever stayed consistent across all the captures was the real signal, and the fluctuating numbers were just noise. I stitched those stable numbers together into a clean "Frankenstein" signal, and it worked on the first try. I repeated the process to map out OFF, 24°C, and 20°C.
+
+
+
+Custom IR Driver: 
+
+ESP32 GPIO pins can only push around 12mA, which isn't nearly enough to blast a signal across a room. To fix this, I used a 2N2222 NPN transistor to drive the IR LED at a 38kHz carrier frequency. The transistor acts as a low-side switch to bump the current up to the ~100mA the LED actually needs.
+
+   Blynk Integration: 
+   
+   For the remote control side, I created virtual pins in the Blynk app, linked them to the ESP32, and set up the interface buttons to trigger the specific arrays over WiFi.
+    ---
 
 ## Hardware
 
 - ESP32 WROOM-32
 - VS1838B IR receiver (GPIO 18) — for capturing
 - IR LED 940nm + 2N2222 transistor + resistors — for sending
-- Powered over USB
+- Powered over USB through my pc for now but planning on putting batteries when i have free time 
 
 Wiring diagram is in [`/docs`](docs/).
 
@@ -52,9 +62,9 @@ Wiring diagram is in [`/docs`](docs/).
 
 Two sketches:
 
-**`ac_controller.ino`** — the main thing. Connects to Blynk, waits for button presses, fires the IR signal.
+**`ac_controller.ino`**  the main code which Connects to Blynk and waits for button presses when i press lets say 20c it fires the IR signal for that.
 
-**`capture.ino`** — used this to capture the raw signals from the remote. Useful if you want to do the same for your own AC.
+**`capture.ino`**  used this to capture the raw signals from the remote. Useful if you want to do the same for your own AC.
 
 ### Libraries
 
