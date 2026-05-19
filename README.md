@@ -54,7 +54,7 @@ ESP32 GPIO pins can only push around 12mA, which isn't nearly enough to blast a 
    
    For the remote control side, I created virtual pins in the Blynk app, linked them to the ESP32, and set up the interface buttons to trigger the specific arrays over WiFi.
    
-    ---
+  ---
 
 ## Hardware
 
