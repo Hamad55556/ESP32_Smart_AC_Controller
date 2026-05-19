@@ -1,12 +1,13 @@
 # ESP32 Smart AC Controller
 
-My room AC is a basic “dumb” unit with no WiFi or smart features, which meant I had to use the remote every single time I wanted to turn it on, off, or change the temperature. Even though my phone has an IR blaster, its range was terrible, so I still had to physically get up and point it at the AC.
+My room AC is a basic "dumb" unit with no WiFi or smart features, which meant I had to use the remote every single time I wanted to turn it on, off, or change the temperature. Even though my phone has an IR blaster, its range was terrible, so I still had to physically get up and point it at the AC.
 
 Since I already had an unused ESP32, some IR components, and a few spare boards lying around, I decided to turn the AC into a smart device instead of replacing it entirely.
 
-The ESP32 clones the exact IR signals from the original remote and connects to the internet through Blynk, letting me control the AC directly from my phone. Now I can change the temperature, turn it on or off remotely, or even start cooling my room before I get home from work so the room is already cold when I arrive.
+The ESP32 clones the exact IR signals from the original remote and connects to the internet through Blynk, letting me control the AC directly from my phone. Now I can change the temperature, turn it on or off remotely, or even start cooling my room before I get home so the room is already cold when I arrive.
 
 What started as a small convenience project ended up becoming a pretty interesting exercise in reverse engineering IR protocols, signal cleanup, and embedded systems debugging.
+
 ![Demo](docs/demo.gif)
 
 ---
@@ -26,22 +27,13 @@ Three buttons currently in the app:
 
 ---
 
-## The annoying part — IR signal reverse engineering
+## IR signal reverse engineering
 
-This took way longer than expected. AC remotes don't use simple on/off codes like a TV remote. They send a full 104-bit signal every time that encodes the temperature, mode, fan speed, everything. No library had support for my specific AC unit so I had to figure it out myself.
+First thing I tried was finding a library or a signal database that already had my AC unit in it, spent a while on that and nothing worked. So I gave up and just decided to copy the raw signal directly from the remote and replay it exactly as-is, wired up an IR receiver to the ESP32, pointed the remote at it and started capturing.
 
-The first problem was noise. Every time I captured the signal it looked slightly different — timings were off by 50-100µs each capture. When I fed those directly to the ESP32 to replay, the AC just ignored it.
+The problem was noise, every capture looked slightly different and when I replayed it the AC just ignored it. The signal is 104 bits long and encodes the full AC state in one go, temperature, mode, fan speed, everything, so even a few bad bits and the AC rejects the whole thing. Manually comparing captures wasn't really an option so I just captured the same button press a bunch of times and had an AI read through all of them and pull out the common values. Whatever was consistent across all captures was the real signal and the rest was just noise, so from that I built a Frankenstein signal from those stable numbers and it worked first try. Did the same thing for OFF, 24°C, and 20°C.
 
-What actually worked: I captured the same button press 6 times, compared all of them, and looked for what stayed consistent. The bits that were the same across every capture were the real signal. The ones that varied were just noise. Then I averaged the noisy timing values to get clean numbers.
-
-Ended up with:
-- Short pulse (0 bit) → **550µs**
-- Long pulse (1 bit) → **1700µs**
-- Header → **9000µs / 4500µs**
-
-That clean signal worked first try.
-
-Raw captures are in [`/captures`](captures/) if you want to see what the noisy vs clean data looks like.
+For sending the signal I used a 2N2222 NPN transistor to drive the IR LED at a carrier frequency of 38kHz, GPIO pins on the ESP32 can only push around 12mA which isn't nearly enough to reach across a room, the transistor bumps that up to the ~100mA the LED actually needs. After that it was just the Blynk side, created the virtual pins, connected them to the ESP32, set up the buttons in the app and that was it.
 
 ---
 
@@ -52,8 +44,6 @@ Raw captures are in [`/captures`](captures/) if you want to see what the noisy v
 - IR LED 940nm + 2N2222 transistor + resistors — for sending
 - Powered over USB
 
-The transistor matters — I tried driving the IR LED directly from the GPIO pin first and the AC never responded. GPIO pins on the ESP32 can only push about 12mA, the LED needs closer to 100mA to actually reach across the room.
-
 Wiring diagram is in [`/docs`](docs/).
 
 ---
@@ -62,9 +52,9 @@ Wiring diagram is in [`/docs`](docs/).
 
 Two sketches:
 
-**`src/ac_controller/`** — the main thing. Connects to Blynk, waits for button presses, fires the IR signal.
+**`ac_controller.ino`** — the main thing. Connects to Blynk, waits for button presses, fires the IR signal.
 
-**`src/capture/`** — used this to capture the raw signals from the remote. Useful if you want to do the same for your own AC.
+**`capture.ino`** — used this to capture the raw signals from the remote. Useful if you want to do the same for your own AC.
 
 ### Libraries
 
@@ -94,16 +84,13 @@ In Blynk, create three button widgets set to **Push** mode:
 
 ## Things I ran into
 
-- Single captures are too noisy to use directly — capture the same signal multiple times and average the stable timings
+- GPIO pins on the ESP32 can't drive an IR LED directly, the signal is too weak to reach the AC unit — needed a transistor to amplify it
+- Default IRremote buffer is too small for AC signals and silently cuts the capture short, had to set `RAW_BUFFER_LENGTH 400`
 
 ---
 
-## What's next if i have time
+## What's next if I have time
 
 - Design a PCB and print an enclosure so it doesn't live on a breadboard or perfboard forever
 - Add more temperature presets
 - Blynk scheduled automations
-
----
-
-
