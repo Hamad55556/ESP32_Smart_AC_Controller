@@ -1,4 +1,12 @@
 # ESP32 Smart AC Controller
+<div align="center">
+  
+![Arduino](https://img.shields.io/badge/-Arduino-00979D?style=for-the-badge&logo=Arduino&logoColor=white)
+![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+![Espressif](https://img.shields.io/badge/ESP32-000000?style=for-the-badge&logo=espressif&logoColor=white)
+![Blynk](https://img.shields.io/badge/Blynk_IoT-1DB954?style=for-the-badge&logo=blynk&logoColor=white)
+
+</div>
 
 My room AC is a basic "dumb" unit with no WiFi or smart features, which meant I had to use the remote every single time I wanted to turn it on, off, or change the temperature. Even though my phone has an IR blaster, its range was terrible, so I still had to physically get up and point it at the AC.
 
