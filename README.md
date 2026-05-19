@@ -104,3 +104,6 @@ In Blynk, create three button widgets set to **Push** mode:
 - Design a PCB and print an enclosure so it doesn't live on a breadboard or perfboard forever
 - Add more temperature presets
 - Blynk scheduled automations
+
+ **Important Disclaimer**
+The ESP32 must have an active internet connection for this to work. The system relies on the Blynk IoT platform to bridge the connection between your phone and the microcontroller. It does not connect to your phone directly via Bluetooth or a local offline network. If the WiFi drops, remote control is temporarily disabled.
