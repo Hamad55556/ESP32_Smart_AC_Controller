@@ -8,7 +8,7 @@ The ESP32 clones the exact IR signals from the original remote and connects to t
 
 What started as a small convenience project ended up becoming a pretty interesting exercise in reverse engineering IR protocols, signal cleanup, and embedded systems debugging.
 
-![Demo](docs/demo.gif)
+
 
 ---
 
@@ -54,7 +54,7 @@ ESP32 GPIO pins can only push around 12mA, which isn't nearly enough to blast a 
 - IR LED 940nm + 2N2222 transistor + resistors — for sending
 - Powered over USB through my pc for now but planning on putting batteries when i have free time 
 
-Wiring diagram is in [`/docs`](docs/).
+
 
 ---
 
